@@ -1,0 +1,6 @@
+services:
+  backend:
+    container_name: commerce-backend
+    build: ./backend
+    ports:
+      - "3001:3000"
