@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
-import { PointModule } from './point/point.module.js';
+import { Module }         from '@nestjs/common';
+import { DatabaseModule } from './database/database.module.js';
+import { PointModule }    from './point/point.module.js';
 
 @Module({
-  imports: [PointModule],
+  imports: [DatabaseModule, PointModule],
 })
 export class AppModule {}
