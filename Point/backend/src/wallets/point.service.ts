@@ -46,67 +46,32 @@ export class PointService {
     return         await this.pointRepository.getTransactions(wallet.id)
   }
 
-  async earnPoints(clientId: string, reqKey: string | undefined, userId: string, amount: number, ref_id: string){
+  async editPoints(clientId: string, reqKey: string | undefined, userId: string, type: 'EARN' | 'SPEND', amount: number, ref_id: string) {
     if (!reqKey)    throw new BadRequestException('Idempotency-Key is required')
-    const reqHash = createHash('sha256').update(JSON.stringify(['EARN', userId, amount, ref_id])).digest('hex')
+    const reqHash = createHash('sha256').update(JSON.stringify([type, userId, amount, ref_id])).digest('hex')
 
-    try {
+    try{
       return await this.dataSource.transaction(async (manager) => {
         const record = await this.pointRepository.findRecord(clientId, reqKey, manager)
         if (record)    return { transaction_id: this.checkRecord(record, reqHash) }
 
         await this.pointRepository.initRecord(clientId, reqKey, reqHash, manager)
 
-        const wallet  = await this.pointRepository.findWallet(clientId, { user_id: userId }, manager)
+        const wallet = await this.pointRepository.findWallet(clientId, { user_id: userId }, manager)
 
         if (!wallet)                    throw new NotFoundException('Wallet not found');
         if (wallet.status !== 'ACTIVE') throw new BadRequestException('Wallet is inactive');
     
         const id      = randomUUID();
-        const balance = BigInt(wallet.balance) + BigInt(amount)
+        const balance = type === 'EARN'
+          ? BigInt(wallet.balance) + BigInt(amount)
+          : BigInt(wallet.balance) - BigInt(amount);
+
+        if (balance < 0n) throw new BadRequestException('Insufficient balance');
     
         await this.pointRepository.updateBalance  (wallet.id, String(balance), manager)
-        await this.pointRepository.addTransactions(id, wallet.id, 'EARN', String(amount), String(balance), ref_id, manager)
-        await this.pointRepository.updateRecord(clientId, reqKey, id, manager)
-
-        return { transaction_id: id }
-      })
-    } catch (e) {
-      if (!(e instanceof RecordExistsError)) throw e
-
-      return await this.dataSource.transaction(async (manager) => {
-        const record = await this.pointRepository.findRecord(clientId, reqKey, manager)
-        if (!record)   throw e
-
-        return { transaction_id: this.checkRecord(record, reqHash) }
-      })
-    }
-  }
-
-  async spendPoints(clientId: string, reqKey: string | undefined, userId: string, amount: number, ref_id: string) {
-    if (!reqKey)    throw new BadRequestException('Idempotency-Key is required')
-    const reqHash = createHash('sha256').update(JSON.stringify(['SPEND', userId, amount, ref_id])).digest('hex')
-    
-    try {
-      return await this.dataSource.transaction(async (manager) => {
-        const record = await this.pointRepository.findRecord(clientId, reqKey, manager)
-        if (record)    return { transaction_id: this.checkRecord(record, reqHash) }
-
-        await this.pointRepository.initRecord(clientId, reqKey, reqHash, manager)
-
-        const wallet  = await this.pointRepository.findWallet(clientId, { user_id: userId }, manager)
-
-        if (!wallet)                    throw new NotFoundException('Wallet not found');
-        if (wallet.status !== 'ACTIVE') throw new BadRequestException('Wallet is inactive');
-
-        const id      = randomUUID();
-        const balance = BigInt(wallet.balance) - BigInt(amount)
-
-        if (balance < 0n) throw new BadRequestException('Insufficient balance')
-        
-        await this.pointRepository.updateBalance  (wallet.id, String(balance), manager)
-        await this.pointRepository.addTransactions(id, wallet.id, 'SPEND', String(amount), String(balance), ref_id, manager)
-        await this.pointRepository.updateRecord(clientId, reqKey, id, manager)
+        await this.pointRepository.addTransactions(id, wallet.id, type, String(amount), String(balance), ref_id, manager)
+        await this.pointRepository.updateRecord   (clientId, reqKey, id, manager)
 
         return { transaction_id: id }
       })

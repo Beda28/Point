@@ -48,7 +48,7 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.earnPoints(request.clientId, request.reqKey, body.user_id, body.amount, body.ref_id)
+    return this.pointService.editPoints(request.clientId, request.reqKey, body.user_id, 'EARN', body.amount, body.ref_id)
   }
 
   @Post('wallets/spend')
@@ -56,7 +56,7 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.spendPoints(request.clientId, request.reqKey, body.user_id, body.amount, body.ref_id)
+    return this.pointService.editPoints(request.clientId, request.reqKey, body.user_id, 'SPEND', body.amount, body.ref_id)
   }
 
   @Post('transactions/reverse')
