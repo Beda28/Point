@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository }              from '@nestjs/typeorm';
+import { EntityManager }                 from 'typeorm';
 import { Repository }                    from 'typeorm';
 
 import { Wallet }           from '../database/entities/wallet.entity.js';
@@ -15,14 +16,16 @@ export class PointRepository {
     private readonly transactions: Repository<Transaction>
   ) {}
 
-  findWallet(clientId: string, walletId: string): Promise<Wallet | null> {
-    return this.wallets.findOneBy({ client_id: clientId, id: walletId });
+  async findWallet(clientId: string, user_id: string, manager?: EntityManager): Promise<Wallet | null> {
+    if (manager) return manager.findOne(Wallet, {
+      where: { client_id: clientId, user_id: user_id },
+      lock : { mode: 'pessimistic_write' }
+    })
+
+    return this.wallets.findOneBy({ client_id: clientId, user_id: user_id });
   }
 
   async initWallet(id: string, client_id: string, user_id: string): Promise<Wallet> {
-    const wallet = await this.wallets.findOneBy({ client_id, user_id });
-    if (wallet)    return wallet;
-
     await this.wallets.insert({
       id, client_id, user_id,
       balance: '0',
@@ -32,11 +35,28 @@ export class PointRepository {
     return this.wallets.findOneByOrFail({ id, client_id, user_id });
   }
 
-  async getTransactions(client_Id: string, walletId: string): Promise<Transaction[]> {
-    const wallet = await this.wallets.findOneBy({ client_id: client_Id, id: walletId})
+  async getTransactions(wallet_id: string): Promise<Transaction[]> {
+    return this.transactions.find({
+      where: {wallet_id : wallet_id},
+      order: {created_at: 'DESC', id: 'DESC'}
+    })
+  }
 
-    if (!wallet) throw new NotFoundException('Wallet not found');
+  async addTransactions(
+    id    : string, wallet_id: string, type  : 'EARN' | 'SPEND', 
+    amount: string, balance  : string, ref_id: string, manager: EntityManager
+  ) {
+    return manager.insert(Transaction, {
+      id    , wallet_id, type, 
+      amount, balance  , ref_id,
+      original_id: null
+    })
+  }
 
-    return await this.transactions.find({where: {wallet_id: wallet.id}, order: {created_at: 'DESC', id: 'DESC'}})
+  async updateBalance(wallet_id: string, balance: string, manager: EntityManager) {
+    return manager.update(Wallet, 
+      { id     : wallet_id },
+      { balance: balance   }
+    )
   }
 }

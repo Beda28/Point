@@ -1,11 +1,12 @@
 import {
   Controller, Get, Post, Patch, Body,
-  Param, ParseUUIDPipe, UseGuards, Req
+  Param, UseGuards, Req
 } from '@nestjs/common';
 
 import { PointService }  from './point.service.js';
 import { InitWalletDto } from './dto/init-wallet.dto.js'
 import { ApiKeyGuard }   from '../auth/api-key.guard.js';
+import { PointChangeDto } from './dto/point-change.dto.js';
 
 import type { ClientRequest } from '../auth/api-key.guard.js';
 
@@ -16,36 +17,46 @@ export class PointController {
 
   @Post('wallets')
   initWallet(
-    @Body() body   : InitWalletDto,
-    @Req() request : ClientRequest,
+    @Body() body    : InitWalletDto,
+    @Req()  request : ClientRequest,
   ) {
     return this.pointService.initWallet(
       request.client_id,
-      body.user_id
+      body   .user_id
     )
   }
 
   @Get('wallets/:id')
   getWallet(
-    @Param('id', ParseUUIDPipe) walletId: string,
-    @Req()                      request : ClientRequest,
+    @Param('id') userId  : string,
+    @Req()       request : ClientRequest,
   ) {
-    return this.pointService.findWallet(request.client_id, walletId);
+    return this.pointService.findWallet(request.client_id, userId);
   }
 
   @Get('wallets/:id/transactions')
   getTransactions(
-    @Param('id', ParseUUIDPipe) walletId : string,
-    @Req()                      request : ClientRequest,
+    @Param('id') userId  : string,
+    @Req()       request : ClientRequest,
   ) {
-    return this.pointService.getTransactions(request.client_id, walletId)
+    return this.pointService.getTransactions(request.client_id, userId)
   }
 
   @Post('wallets/earn')
-  earnPoints() {}
+  earnPoints(
+    @Body() body   : PointChangeDto,
+    @Req()  request: ClientRequest
+  ) {
+    return this.pointService.earnPoints(request.client_id, body.user_id, body.amount, body.ref_id)
+  }
 
   @Post('wallets/spend')
-  spendPoints() {}
+  spendPoints(
+    @Body() body   : PointChangeDto,
+    @Req()  request: ClientRequest
+  ) {
+    return this.pointService.spendPoints(request.client_id, body.user_id, body.amount, body.ref_id)
+  }
 
   @Post('transactions/reverse')
   reverseTransaction() {}
