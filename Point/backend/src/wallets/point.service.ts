@@ -35,7 +35,9 @@ export class PointService {
   async earnPoints(clientId: string, userId: string, amount: number, ref_id: string){
     return this.dataSource.transaction(async (manager) => {
       const wallet  = await this.pointRepository.findWallet(clientId, userId, manager)
-      if (!wallet)    throw new NotFoundException('Wallet not found');
+
+      if (!wallet)                    throw new NotFoundException('Wallet not found');
+      if (wallet.status !== 'ACTIVE') throw new BadRequestException('Wallet is inactive');
   
       const id      = randomUUID();
       const balance = BigInt(wallet.balance) + BigInt(amount)
@@ -43,13 +45,14 @@ export class PointService {
       await this.pointRepository.updateBalance  (wallet.id, String(balance), manager)
       await this.pointRepository.addTransactions(id, wallet.id, 'EARN', String(amount), String(balance), ref_id, manager)
     })
-
   }
 
   async spendPoints(clientId: string, userId: string, amount: number, ref_id: string) {
     return this.dataSource.transaction(async (manager) => {
       const wallet  = await this.pointRepository.findWallet(clientId, userId, manager)
-      if (!wallet)    throw new NotFoundException('Wallet not found');
+
+      if (!wallet)                    throw new NotFoundException('Wallet not found');
+      if (wallet.status !== 'ACTIVE') throw new BadRequestException('Wallet is inactive');
 
       const id      = randomUUID();
       const balance = BigInt(wallet.balance) - BigInt(amount)
@@ -59,5 +62,12 @@ export class PointService {
       await this.pointRepository.updateBalance  (wallet.id, String(balance), manager)
       await this.pointRepository.addTransactions(id, wallet.id, 'SPEND', String(amount), String(balance), ref_id, manager)
     })
+  }
+
+  async deactivateWallet(clientId: string, userId: string){
+    const wallet = await this.pointRepository.findWallet(clientId, userId)
+    if (!wallet)   throw new NotFoundException('Wallet not found');
+
+    await this.pointRepository.deActiveWallet(clientId, userId)
   }
 }

@@ -25,14 +25,21 @@ export class PointRepository {
     return this.wallets.findOneBy({ client_id: clientId, user_id: user_id });
   }
 
-  async initWallet(id: string, client_id: string, user_id: string): Promise<Wallet> {
+  async initWallet(id: string, clientId: string, user_id: string): Promise<Wallet> {
     await this.wallets.insert({
-      id, client_id, user_id,
+      id, client_id: clientId, user_id,
       balance: '0',
       status : 'ACTIVE',
     });
 
-    return this.wallets.findOneByOrFail({ id, client_id, user_id });
+    return this.wallets.findOneByOrFail({ id, client_id: clientId, user_id });
+  }
+
+  async deActiveWallet(clientId: string, userId: string) {
+    await this.wallets.update(
+      { client_id: clientId, user_id: userId },
+      { status   : 'INACTIVE' }
+    )
   }
 
   async getTransactions(wallet_id: string): Promise<Transaction[]> {

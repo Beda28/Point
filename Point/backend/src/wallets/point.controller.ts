@@ -21,7 +21,7 @@ export class PointController {
     @Req()  request : ClientRequest,
   ) {
     return this.pointService.initWallet(
-      request.client_id,
+      request.clientId,
       body   .user_id
     )
   }
@@ -31,7 +31,7 @@ export class PointController {
     @Param('id') userId  : string,
     @Req()       request : ClientRequest,
   ) {
-    return this.pointService.findWallet(request.client_id, userId);
+    return this.pointService.findWallet(request.clientId, userId);
   }
 
   @Get('wallets/:id/transactions')
@@ -39,7 +39,7 @@ export class PointController {
     @Param('id') userId  : string,
     @Req()       request : ClientRequest,
   ) {
-    return this.pointService.getTransactions(request.client_id, userId)
+    return this.pointService.getTransactions(request.clientId, userId)
   }
 
   @Post('wallets/earn')
@@ -47,7 +47,7 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.earnPoints(request.client_id, body.user_id, body.amount, body.ref_id)
+    return this.pointService.earnPoints(request.clientId, body.user_id, body.amount, body.ref_id)
   }
 
   @Post('wallets/spend')
@@ -55,12 +55,17 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.spendPoints(request.client_id, body.user_id, body.amount, body.ref_id)
+    return this.pointService.spendPoints(request.clientId, body.user_id, body.amount, body.ref_id)
   }
 
   @Post('transactions/reverse')
   reverseTransaction() {}
 
   @Patch('wallets/:id')
-  deactivateWallet() {}
+  deactivateWallet(
+    @Param('id') userId : string,
+    @Req()       request: ClientRequest
+  ) {
+    return this.pointService.deactivateWallet(request.clientId, userId)
+  }
 }

@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException }  from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
 
-export type ClientRequest = Request & { client_id: string; };
+export type ClientRequest = Request & { clientId: string; };
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
@@ -16,7 +16,7 @@ export class ApiKeyGuard implements CanActivate {
     if (!validKey || !clientId)           throw new UnauthorizedException('API authentication unavailable');
     if (!apiKey   || apiKey !== validKey) throw new UnauthorizedException('Invalid API key');
 
-    request.client_id = clientId;
+    request.clientId = clientId;
 
     return true;
   }
