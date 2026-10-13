@@ -48,7 +48,7 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.earnPoints(request.clientId, body.user_id, body.amount, body.ref_id)
+    return this.pointService.earnPoints(request.clientId, request.reqKey, body.user_id, body.amount, body.ref_id)
   }
 
   @Post('wallets/spend')
@@ -56,15 +56,15 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.spendPoints(request.clientId, body.user_id, body.amount, body.ref_id)
+    return this.pointService.spendPoints(request.clientId, request.reqKey, body.user_id, body.amount, body.ref_id)
   }
 
   @Post('transactions/reverse')
   reverseTransaction(
-    @Body() body: ReverseTransactionDto,
+    @Body() body   : ReverseTransactionDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.reverseTransaction(body.transaction_id, request.clientId)
+    return this.pointService.reverseTransaction(body.transaction_id, request.clientId, request.reqKey)
   }
 
   @Patch('wallets/:id')
