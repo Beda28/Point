@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  Controller, Get, Post, Body,
+  Controller, Get, Post, Patch, Body,
   Param, Query, ParseUUIDPipe
 } from '@nestjs/common';
 
@@ -12,7 +12,7 @@ export class PointController {
   constructor(private readonly pointService: PointService) {}
 
   @Post('wallets')
-  initWallet(@Body() body: InitWalletDto) {
+  initWallet( @Body() body: InitWalletDto ) {
     return this.pointService.initWallet(
       body.client_id,
       body.user_id
@@ -30,4 +30,24 @@ export class PointController {
 
     return this.pointService.findWallet(clientId, walletId);
   }
+
+  @Get('wallets/:id/transactions')
+  getTransactions(
+    @Param('id', ParseUUIDPipe) walletId : string,
+    @Query('clientId')          client_Id: string
+  ) {
+    return this.pointService.getTransactions(client_Id, walletId)
+  }
+
+  @Post('wallets/earn')
+  earnPoints() {}
+
+  @Post('wallets/spend')
+  spendPoints() {}
+
+  @Post('transactions/reverse')
+  reverseTransaction() {}
+
+  @Patch('wallets/:id')
+  deactivateWallet() {}
 }

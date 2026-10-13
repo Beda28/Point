@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PointRepository }              from './point.repository.js';
+import { PointRepository }               from './point.repository.js';
 import { randomUUID }                    from 'node:crypto';
 
 @Injectable()
@@ -17,5 +17,9 @@ export class PointService {
     const id = randomUUID();
 
     return await this.pointRepository.initWallet(id, client_id, user_id)
+  }
+
+  async getTransactions(clientId: string, walletId: string){
+    return await this.pointRepository.getTransactions(clientId, walletId)
   }
 }
