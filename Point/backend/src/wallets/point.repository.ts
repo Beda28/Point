@@ -16,13 +16,24 @@ export class PointRepository {
     private readonly transactions: Repository<Transaction>
   ) {}
 
-  async findWallet(clientId: string, user_id: string, manager?: EntityManager): Promise<Wallet | null> {
+  async findWallet(clientId: string, target: { user_id: string } | { id: string }, manager?: EntityManager): Promise<Wallet | null> {
+    const where = { ...target, client_id: clientId}
+
     if (manager) return manager.findOne(Wallet, {
-      where: { client_id: clientId, user_id: user_id },
+      where,
       lock : { mode: 'pessimistic_write' }
     })
 
-    return this.wallets.findOneBy({ client_id: clientId, user_id: user_id });
+    return this.wallets.findOneBy(where);
+  }
+
+  async findWalletById(clientId: string, wallet_id: string, manager?: EntityManager): Promise<Wallet | null> {
+    if (manager) return manager.findOne(Wallet, {
+      where: { client_id: clientId, id: wallet_id },
+      lock : { mode: 'pessimistic_write' }
+    })
+
+    return this.wallets.findOneBy({ client_id: clientId, id: wallet_id });
   }
 
   async initWallet(id: string, clientId: string, user_id: string): Promise<Wallet> {
@@ -41,6 +52,13 @@ export class PointRepository {
       { status   : 'INACTIVE' }
     )
   }
+  
+  async updateBalance(wallet_id: string, balance: string, manager: EntityManager) {
+    return manager.update(Wallet, 
+      { id     : wallet_id },
+      { balance: balance   }
+    )
+  }
 
   async getTransactions(wallet_id: string): Promise<Transaction[]> {
     return this.transactions.find({
@@ -49,21 +67,23 @@ export class PointRepository {
     })
   }
 
+  async findTransactions(target: { id: string } | { original_id: string }, manager?: EntityManager): Promise<Transaction | null> {
+    if (manager) return await manager.findOne(Transaction, {
+      where: target,
+      lock : 'original_id' in target ? { mode: 'pessimistic_write' } : undefined
+    })
+    return await this.transactions.findOneBy(target)
+  }
+
   async addTransactions(
-    id    : string, wallet_id: string, type  : 'EARN' | 'SPEND', 
-    amount: string, balance  : string, ref_id: string, manager: EntityManager
+    id    : string, wallet_id: string, type  : 'EARN' | 'SPEND' | 'REVERSE', 
+    amount: string, balance  : string, ref_id: string, manager: EntityManager,
+    original_id: string | null = null
   ) {
     return manager.insert(Transaction, {
       id    , wallet_id, type, 
       amount, balance  , ref_id,
-      original_id: null
+      original_id
     })
-  }
-
-  async updateBalance(wallet_id: string, balance: string, manager: EntityManager) {
-    return manager.update(Wallet, 
-      { id     : wallet_id },
-      { balance: balance   }
-    )
   }
 }

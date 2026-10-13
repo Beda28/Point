@@ -9,6 +9,7 @@ import { ApiKeyGuard }   from '../auth/api-key.guard.js';
 import { PointChangeDto } from './dto/point-change.dto.js';
 
 import type { ClientRequest } from '../auth/api-key.guard.js';
+import { ReverseTransactionDto } from './dto/reverse-transaction.dto.js';
 
 @UseGuards(ApiKeyGuard)
 @Controller()
@@ -59,7 +60,12 @@ export class PointController {
   }
 
   @Post('transactions/reverse')
-  reverseTransaction() {}
+  reverseTransaction(
+    @Body() body: ReverseTransactionDto,
+    @Req()  request: ClientRequest
+  ) {
+    return this.pointService.reverseTransaction(body.transaction_id, request.clientId)
+  }
 
   @Patch('wallets/:id')
   deactivateWallet(
