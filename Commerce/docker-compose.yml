@@ -1,4 +1,10 @@
 services:
+  frontend:
+    container_name: commerce-frontend
+    build: ./frontend
+    ports:
+      - "4173:4173"
+
   backend:
     container_name: commerce-backend
     build: ./backend
