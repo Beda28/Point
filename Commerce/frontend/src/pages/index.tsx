@@ -1,3 +1,5 @@
-export default function Index() {
-  return <div>index</div>
+const Index = () => {
+  return null
 }
+
+export default Index
