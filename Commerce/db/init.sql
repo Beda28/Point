@@ -6,15 +6,11 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS products (
     pid             CHAR(36)                                          NOT NULL PRIMARY KEY,
+    uid             CHAR(36)                                          NOT NULL,
     pname           VARCHAR(255)                                      NOT NULL,
     price           BIGINT                                            NOT NULL,
-    content         TEXT                                              NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS wallets (
-    wid             CHAR(36)                                          NOT NULL PRIMARY KEY,
-    uid             CHAR(36)                                          NOT NULL UNIQUE,
-    balance         BIGINT                                            NOT NULL DEFAULT 0,
+    content         TEXT                                              NOT NULL,
+    created_at      DATETIME(6)                                       NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     FOREIGN KEY (uid) REFERENCES users(uuid)
 );
 
@@ -22,7 +18,6 @@ CREATE TABLE IF NOT EXISTS transactions (
     tid             CHAR(36)                                          NOT NULL PRIMARY KEY,
     pid             CHAR(36)                                          NOT NULL,
     uid             CHAR(36)                                          NOT NULL,
-    wid             CHAR(36)                                          NOT NULL,
     quantity        INT                                               NOT NULL,
     unit_price      BIGINT                                            NOT NULL,
     total_amount    BIGINT                                            NOT NULL,
@@ -33,6 +28,5 @@ CREATE TABLE IF NOT EXISTS transactions (
     point_refund_tid CHAR(36)                                          NULL,
     created_at      DATETIME(6)                                       NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     FOREIGN KEY (pid) REFERENCES products(pid),
-    FOREIGN KEY (uid) REFERENCES users(uuid),
-    FOREIGN KEY (wid) REFERENCES wallets(wid)
+    FOREIGN KEY (uid) REFERENCES users(uuid)
 );

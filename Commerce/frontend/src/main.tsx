@@ -7,6 +7,7 @@ import Login from './pages/login'
 import Signup from './pages/signup'
 import Products from './pages/products'
 import Product from './pages/product'
+import ProductForm from './pages/product-form'
 import Checkout from './pages/checkout'
 import MyPage from './pages/mypage'
 import Payments from './pages/payments'
@@ -19,18 +20,21 @@ createRoot(document.getElementById('root')!).render(
     <Header />
     <Page>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:pid" element={<Product />} />
+        <Route path="/"                       element={<Index />} />
+        <Route path="/login"                  element={<Login />} />
+        <Route path="/signup"                 element={<Signup />} />
+        <Route path="/products"               element={<Products />} />
+        <Route path="/products/new"           element={<ProductForm key="new" />} />
+        <Route path="/products/:pid/edit"     element={<ProductForm />} />
+        <Route path="/products/:pid"          element={<Product />} />
         <Route path="/products/:pid/checkout" element={<Checkout />} />
-        <Route path="/mypage" element={<MyPageLayout />}>
-          <Route index element={<MyPage />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="payments/:tid" element={<Payment />} />
+        <Route path="/mypage"                 element={<MyPageLayout />}>
+          <Route index                        element={<MyPage />} />
+          <Route path="products"              element={<Products mine />} />
+          <Route path="payments"              element={<Payments />} />
+          <Route path="payments/:tid"         element={<Payment />} />
         </Route>
-        <Route path="*" element={<p>페이지를 찾을 수 없습니다.</p>} />
+        <Route path="*"                       element={<p>페이지를 찾을 수 없습니다.</p>} />
       </Routes>
     </Page>
   </BrowserRouter>

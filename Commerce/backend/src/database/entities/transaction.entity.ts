@@ -11,9 +11,6 @@ export class Transaction {
   @Column({ type: 'char', length: 36 })
   uid: string;
 
-  @Column({ type: 'char', length: 36 })
-  wid: string;
-
   @Column({ type: 'int' })
   quantity: number;
 

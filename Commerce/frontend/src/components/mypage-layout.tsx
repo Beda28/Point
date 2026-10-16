@@ -21,6 +21,7 @@ const MyPageLayout = () => {
     <AccountLayout>
       <nav aria-label="마이페이지 메뉴">
         <NavLink to="/mypage" end>내 정보</NavLink>
+        <NavLink to="/mypage/products">내가 등록한 상품</NavLink>
         <NavLink to="/mypage/payments">결제 내역</NavLink>
       </nav>
       <Outlet />
