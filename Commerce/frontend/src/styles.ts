@@ -21,6 +21,7 @@ export const HeaderInner = styled.div`
     gap: 16px 12px;
     nav { grid-column: 1 / -1; grid-row: 2; }
   }
+  @media (max-width: 360px) { column-gap: 8px; }
 `
 
 export const HeaderActions = styled.div`
@@ -32,10 +33,14 @@ export const HeaderActions = styled.div`
   a, button { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); }
   a { padding: 7px 12px; font-size: 14px; }
   a:last-of-type { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-  button { width: 38px; height: 38px; padding: 0; font-size: 21px; }
+  button { padding: 7px 12px; font-size: 14px; }
+  button[aria-pressed] { width: 38px; height: 38px; padding: 0; font-size: 21px; }
   button:hover { background: var(--surface-soft); }
   a:hover { border-color: var(--muted); }
-  @media (max-width: 360px) { gap: 5px; a { padding: 7px 8px; } }
+  @media (max-width: 360px) {
+    gap: 5px;
+    a, button:not([aria-pressed]) { padding: 7px 8px; font-size: 12px; }
+  }
 `
 
 export const Page = styled.main`
