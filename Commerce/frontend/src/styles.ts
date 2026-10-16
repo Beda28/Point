@@ -120,6 +120,14 @@ export const Field = styled.label`
   textarea { min-height: 144px; }
 `
 
+export const ProfileForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 460px;
+`
+
 export const Muted = styled.p`
   color: var(--muted);
   font-size: 14px;

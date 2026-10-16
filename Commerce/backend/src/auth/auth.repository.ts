@@ -20,4 +20,8 @@ export class AuthRepository {
 
     return await this.users.insert({ uuid, id, pw_hash })
   }
+
+  async updatePassword(uuid: string, pw_hash: string) {
+    return this.users.update({ uuid }, { pw_hash })
+  }
 }
