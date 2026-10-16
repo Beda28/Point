@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException }  from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
 
-export type ClientRequest = Request & { clientId: string; };
+export type ClientRequest = Request & { clientId: string; reqKey?: string; };
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
@@ -10,6 +10,7 @@ export class ApiKeyGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<ClientRequest>();
 
     const apiKey   = request.headers['x-api-key'];
+    const reqKey   = request.get('Idempotency-Key')
     const validKey = process.env.API_KEY;
     const clientId = process.env.API_CLIENT_ID;
 
@@ -17,6 +18,7 @@ export class ApiKeyGuard implements CanActivate {
     if (!apiKey   || apiKey !== validKey) throw new UnauthorizedException('Invalid API key');
 
     request.clientId = clientId;
+    request.reqKey   = reqKey
 
     return true;
   }

@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository }              from '@nestjs/typeorm';
-import { EntityManager }                 from 'typeorm';
+import { EntityManager, ManyToMany, QueryFailedError }                 from 'typeorm';
 import { Repository }                    from 'typeorm';
 
 import { Wallet }           from '../database/entities/wallet.entity.js';
 import { Transaction }      from '../database/entities/transaction.entity.js';
+import { RequestRecord }    from '../database/entities/record.entity.js';
+
+export class RecordExistsError extends Error {}
 
 @Injectable()
 export class PointRepository {
@@ -13,7 +16,10 @@ export class PointRepository {
     private readonly wallets     : Repository<Wallet>,
 
     @InjectRepository(Transaction)
-    private readonly transactions: Repository<Transaction>
+    private readonly transactions: Repository<Transaction>,
+
+    @InjectRepository(RequestRecord)
+    private readonly records     : Repository<RequestRecord>
   ) {}
 
   async findWallet(clientId: string, target: { user_id: string } | { id: string }, manager?: EntityManager): Promise<Wallet | null> {
@@ -85,5 +91,36 @@ export class PointRepository {
       amount, balance  , ref_id,
       original_id
     })
+  }
+
+  async findRecord(client_id: string, reqKey: string, manager: EntityManager): Promise<RequestRecord | null> {
+    return manager.findOneBy(RequestRecord, {
+      client_id: client_id,
+      req_key  : reqKey
+    })
+  }
+
+  async initRecord(client_id: string, req_key: string, req_hash: string, manager: EntityManager){
+    try {
+      return await manager.insert(RequestRecord, {
+        client_id, req_key, req_hash,
+        status: 'PROCESSING',
+        tx_id : null
+      })
+    } catch (e) {
+      if (
+        e instanceof QueryFailedError &&
+        e.driverError.code === 'ER_DUP_ENTRY'
+      ) throw new RecordExistsError()
+
+      throw e
+    }
+  }
+
+  async updateRecord(client_id: string, reqKey: string, tx_id: string, manager: EntityManager) {
+    return manager.update(RequestRecord, 
+      { client_id: client_id , req_key: reqKey }, 
+      { tx_id    : tx_id     , status : 'COMPLETED' }
+    )
   }
 }
