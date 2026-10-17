@@ -47,6 +47,8 @@ export class PointService {
   }
 
   async editPoints(clientId: string, reqKey: string | undefined, userId: string, type: 'EARN' | 'SPEND', amount: number, ref_id: string, point?: number | null) {
+    if (amount === 0 && (point ?? 0) === 0) 
+                    throw new BadRequestException('Amount or point must be greater than zero')
     if (!reqKey)    throw new BadRequestException('Idempotency-Key is required')
     const reqHash = createHash('sha256').update(JSON.stringify([type, userId, amount, ref_id, point ?? null])).digest('hex')
 
