@@ -46,9 +46,11 @@ export class PointService {
     return         await this.pointRepository.getTransactions(wallet.id)
   }
 
-  async editPoints(clientId: string, reqKey: string | undefined, userId: string, type: 'EARN' | 'SPEND', amount: number, ref_id: string) {
+  async editPoints(clientId: string, reqKey: string | undefined, userId: string, type: 'EARN' | 'SPEND', amount: number, ref_id: string, point?: number | null) {
+    if (amount === 0 && (point ?? 0) === 0) 
+                    throw new BadRequestException('Amount or point must be greater than zero')
     if (!reqKey)    throw new BadRequestException('Idempotency-Key is required')
-    const reqHash = createHash('sha256').update(JSON.stringify([type, userId, amount, ref_id])).digest('hex')
+    const reqHash = createHash('sha256').update(JSON.stringify([type, userId, amount, ref_id, point ?? null])).digest('hex')
 
     try{
       return await this.dataSource.transaction(async (manager) => {
@@ -67,10 +69,14 @@ export class PointService {
           ? BigInt(wallet.balance) + BigInt(amount)
           : BigInt(wallet.balance) - BigInt(amount);
 
-        if (balance < 0n) throw new BadRequestException('Insufficient balance');
+        const point_balance = type === 'EARN'
+          ? BigInt(wallet.point) + BigInt(point ?? 0)
+          : BigInt(wallet.point) - BigInt(point ?? 0);
+
+        if (balance < 0n || point_balance < 0n) throw new BadRequestException('Insufficient balance');
     
-        await this.pointRepository.updateBalance  (wallet.id, String(balance), manager)
-        await this.pointRepository.addTransactions(id, wallet.id, type, String(amount), String(balance), ref_id, manager)
+        await this.pointRepository.updateBalance  (wallet.id, String(balance), manager, String(point_balance))
+        await this.pointRepository.addTransactions(id, wallet.id, type, String(amount), String(balance), ref_id, manager, point == null ? null : String(point), point == null ? null : String(point_balance))
         await this.pointRepository.updateRecord   (clientId, reqKey, id, manager)
 
         return { transaction_id: id }
@@ -115,10 +121,15 @@ export class PointService {
           ? BigInt(wallet.balance) - amount
           : BigInt(wallet.balance) + amount;
 
-        if (balance < 0n) throw new BadRequestException('Insufficient balance');
+        const point         = BigInt(transaction.point ?? 0)
+        const point_balance = transaction.type === 'EARN'
+          ? BigInt(wallet.point) - point
+          : BigInt(wallet.point) + point;
+
+        if (balance < 0n || point_balance < 0n) throw new BadRequestException('Insufficient balance');
           
-        await this.pointRepository.updateBalance(wallet.id, String(balance), manager)
-        await this.pointRepository.addTransactions(id, wallet.id, 'REVERSE', String(amount), String(balance), transaction.ref_id, manager, transaction.id)
+        await this.pointRepository.updateBalance(wallet.id, String(balance), manager, String(point_balance))
+        await this.pointRepository.addTransactions(id, wallet.id, 'REVERSE', String(amount), String(balance), transaction.ref_id, manager, transaction.point, transaction.point == null ? null : String(point_balance), transaction.id)
         await this.pointRepository.updateRecord(clientId, reqKey, id, manager)
 
         return { transaction_id: id }

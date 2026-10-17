@@ -1,6 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryColumn, Index, Unique } from 'typeorm';
 
 @Entity('transactions')
+@Index(['wallet_id', 'created_at', 'id'])
+@Unique(['original_id'])
 export class Transaction {
   @PrimaryColumn({ type: 'char', length: 36 })
   id: string;
@@ -16,6 +18,12 @@ export class Transaction {
 
   @Column({ type: 'bigint' })
   balance: string;
+
+  @Column({ type: 'bigint', nullable: true })
+  point: string | null;
+
+  @Column({ type: 'bigint', nullable: true })
+  point_balance: string | null;
 
   @Column({ type: 'varchar', length: 128 })
   ref_id: string;
