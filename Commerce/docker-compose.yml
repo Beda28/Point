@@ -26,6 +26,8 @@ services:
   backend:
     container_name: commerce-backend
     build: ./backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       DB_HOST: db
       DB_PORT: 3306
@@ -33,6 +35,8 @@ services:
       DB_USER: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      POINT_BASE_URL: ${POINT_BASE_URL}
+      POINT_API_KEY: ${POINT_API_KEY}
     depends_on:
       db:
         condition: service_healthy
