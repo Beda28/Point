@@ -1,7 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository }              from '@nestjs/typeorm';
-import { EntityManager, ManyToMany, QueryFailedError }                 from 'typeorm';
-import { Repository }                    from 'typeorm';
+import { Injectable }       from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, QueryFailedError, Repository } from 'typeorm';
 
 import { Wallet }           from '../database/entities/wallet.entity.js';
 import { Transaction }      from '../database/entities/transaction.entity.js';
