@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, Index, Unique } from 'typeorm';
 
 @Entity('transactions')
-@Index(['wallet_id', 'create_at', 'id'])
+@Index(['wallet_id', 'created_at', 'id'])
 @Unique(['original_id'])
 export class Transaction {
   @PrimaryColumn({ type: 'char', length: 36 })
