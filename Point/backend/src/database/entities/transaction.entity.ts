@@ -17,6 +17,12 @@ export class Transaction {
   @Column({ type: 'bigint' })
   balance: string;
 
+  @Column({ type: 'bigint', nullable: true })
+  point: string | null;
+
+  @Column({ type: 'bigint', nullable: true })
+  point_balance: string | null;
+
   @Column({ type: 'varchar', length: 128 })
   ref_id: string;
 

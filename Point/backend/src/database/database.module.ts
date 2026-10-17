@@ -1,6 +1,5 @@
 import { Module }        from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { InitialSchema1792108800000 } from './migrations/1792108800000-initial-schema.js';
 
 @Module({
   imports: [
@@ -12,9 +11,7 @@ import { InitialSchema1792108800000 } from './migrations/1792108800000-initial-s
       password         : process.env.DB_PASSWORD,
       database         : process.env.DB_NAME,
       autoLoadEntities : true,
-      synchronize      : false,
-      migrations       : [InitialSchema1792108800000],
-      migrationsRun    : true,
+      synchronize      : true,
       supportBigNumbers: true,
       bigNumberStrings : true,
     }),

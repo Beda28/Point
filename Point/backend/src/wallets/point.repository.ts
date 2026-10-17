@@ -46,6 +46,7 @@ export class PointRepository {
     await this.wallets.insert({
       id, client_id: clientId, user_id,
       balance: '0',
+      point  : '0',
       status : 'ACTIVE',
     });
 
@@ -59,10 +60,10 @@ export class PointRepository {
     )
   }
   
-  async updateBalance(wallet_id: string, balance: string, manager: EntityManager) {
+  async updateBalance(wallet_id: string, balance: string, manager: EntityManager, point: string) {
     return manager.update(Wallet, 
       { id     : wallet_id },
-      { balance: balance   }
+      { balance: balance, point: point }
     )
   }
 
@@ -84,11 +85,13 @@ export class PointRepository {
   async addTransactions(
     id    : string, wallet_id: string, type  : 'EARN' | 'SPEND' | 'REVERSE', 
     amount: string, balance  : string, ref_id: string, manager: EntityManager,
+    point : string | null, point_balance: string | null,
     original_id: string | null = null
   ) {
     return manager.insert(Transaction, {
       id    , wallet_id, type, 
       amount, balance  , ref_id,
+      point , point_balance,
       original_id
     })
   }

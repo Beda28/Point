@@ -14,6 +14,9 @@ export class Wallet {
   @Column({ type: 'bigint', default: 0 })
   balance: string;
 
+  @Column({ type: 'bigint', default: 0 })
+  point: string;
+
   @Column({ type: 'enum', enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' })
   status: 'ACTIVE' | 'INACTIVE';
 
