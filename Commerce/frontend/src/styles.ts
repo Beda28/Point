@@ -218,7 +218,8 @@ export const Summary = styled.dl`
   div { display: flex; justify-content: space-between; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border); }
   div:last-child { border-bottom: 0; }
   dt { color: var(--muted); }
-  dd { margin: 0; text-align: right; }
+  dt { flex-shrink: 0; }
+  dd { margin: 0; text-align: right; overflow-wrap: anywhere; min-width: 0; }
 `
 
 export const AccountLayout = styled.div`

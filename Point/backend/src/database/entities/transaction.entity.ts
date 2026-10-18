@@ -10,8 +10,8 @@ export class Transaction {
   @Column({ type: 'char', length: 36 })
   wallet_id: string;
 
-  @Column({ type: 'enum', enum: ['EARN', 'SPEND', 'REVERSE'] })
-  type: 'EARN' | 'SPEND' | 'REVERSE';
+  @Column({ type: 'enum', enum: ['EARN', 'SPEND', 'REVERSE', 'SETTLE'] })
+  type: 'EARN' | 'SPEND' | 'REVERSE' | 'SETTLE';
 
   @Column({ type: 'bigint' })
   amount: string;

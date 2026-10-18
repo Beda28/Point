@@ -82,7 +82,7 @@ export class PointRepository {
   }
 
   async addTransactions(
-    id    : string, wallet_id: string, type  : 'EARN' | 'SPEND' | 'REVERSE', 
+    id    : string, wallet_id: string, type  : Transaction['type'],
     amount: string, balance  : string, ref_id: string, manager: EntityManager,
     point : string | null, point_balance: string | null,
     original_id: string | null = null

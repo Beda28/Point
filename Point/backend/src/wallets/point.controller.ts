@@ -10,6 +10,7 @@ import { PointChangeDto } from './dto/point-change.dto.js';
 
 import type { ClientRequest } from '../auth/api-key.guard.js';
 import { ReverseTransactionDto } from './dto/reverse-transaction.dto.js';
+import { SettleDto } from './dto/settle.dto.js';
 
 @UseGuards(ApiKeyGuard)
 @Controller()
@@ -73,5 +74,13 @@ export class PointController {
     @Req()       request: ClientRequest
   ) {
     return this.pointService.deactivateWallet(request.clientId, userId)
+  }
+
+  @Post('transactions/settle')
+  settle(
+    @Body() body: SettleDto,
+    @Req() request: ClientRequest
+  ) {
+    return this.pointService.settleTransaction(request.clientId, request.reqKey, body)
   }
 }

@@ -48,7 +48,7 @@ const Product = () => {
     <Muted>등록일 {new Date(product.created_at).toLocaleDateString('ko-KR')}</Muted>
     <h2>{money(product.price)}원</h2>
     <Description>{product.content}</Description>
-    <Muted>결제 기능은 준비 중입니다.</Muted>
+    {getUserId() !== product.uid && <Button as={Link} to={`/products/${pid}/checkout`}>구매하기</Button>}
     {getUserId() === product.uid && <Row>
       <Button as={Link} to={`/products/${pid}/edit`}>수정</Button>
       <Button type="button" disabled={pending} onClick={remove}>{pending ? '삭제 중...' : '삭제'}</Button>

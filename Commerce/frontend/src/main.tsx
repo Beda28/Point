@@ -31,8 +31,9 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/mypage"                 element={<MyPageLayout />}>
           <Route index                        element={<MyPage />} />
           <Route path="products"              element={<Products mine />} />
-          <Route path="payments"              element={<Payments />} />
+          <Route path="payments"              element={<Payments key="payments" />} />
           <Route path="payments/:tid"         element={<Payment />} />
+          <Route path="sales"                 element={<Payments key="sales" sales />} />
         </Route>
         <Route path="*"                       element={<p>페이지를 찾을 수 없습니다.</p>} />
       </Routes>
