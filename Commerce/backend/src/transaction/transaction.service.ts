@@ -1,6 +1,6 @@
 import {
     Injectable, BadRequestException, ConflictException,
-    NotFoundException, ServiceUnavailableException
+    NotFoundException, ServiceUnavailableException, BadGatewayException
  } from "@nestjs/common";
 
 import { randomUUID } from "node:crypto";
@@ -25,10 +25,14 @@ export class TransactionService {
 
     private pointError(error: unknown): never {
         if (error instanceof PointApiError) {
-            if (error.status === 400 || error.status === 404) throw new BadRequestException('Point wallet or balance is invalid')
-            if (error.status === 409)                         throw new ConflictException  ('Point request is processing or conflicting')
+            if (error.status === 400 || error.status === 404)
+                throw new BadRequestException({ code: 'POINT_REJECTED', message: 'Point wallet or balance is invalid' })
+            if (error.status === 409)
+                throw new ConflictException({ code: 'POINT_CONFLICT', message: 'Point request is processing or conflicting' })
+            if (error.status === 401 || error.status === 403)
+                throw new BadGatewayException({ code: 'POINT_AUTH_FAILED', message: 'Point API authentication failed' })
         }
-        throw new ServiceUnavailableException('Point payment result is uncertain. Retry the same transaction.')
+        throw new ServiceUnavailableException({ code: 'POINT_RESULT_UNKNOWN', message: 'Point payment result is uncertain. Retry the same transaction.' })
     }
 
     async create(uid: string, body: TransactionDto) {
@@ -87,6 +91,7 @@ export class TransactionService {
         try {
             result = await this.pointClient.request('/wallets/spend', 'POST', {
                 user_id: uid,
+                seller_id: transaction.seller_id,
                 amount : Number(transaction.amount),
                 ...(BigInt(transaction.point_used) > 0n
                     ? { point: Number(transaction.point_used) }

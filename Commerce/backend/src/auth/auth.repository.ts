@@ -1,6 +1,6 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository }              from '@nestjs/typeorm';
-import { Repository }                    from 'typeorm';
+import { QueryFailedError, Repository }  from 'typeorm';
 import { User }                          from '../database/entities/user.entity.js';
 
 @Injectable()
@@ -18,7 +18,13 @@ export class AuthRepository {
     const user = await this.findUser({ id })
     if (user) throw new ConflictException('이미 사용 중인 아이디입니다')
 
-    return await this.users.insert({ uuid, id, pw_hash })
+    try {
+      return await this.users.insert({ uuid, id, pw_hash })
+    } catch (error) {
+      if (error instanceof QueryFailedError && error.driverError.code === 'ER_DUP_ENTRY')
+        throw new ConflictException('이미 사용 중인 아이디입니다')
+      throw error
+    }
   }
 
   async updatePassword(uuid: string, pw_hash: string) {

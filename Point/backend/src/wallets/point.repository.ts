@@ -21,12 +21,12 @@ export class PointRepository {
     private readonly records     : Repository<RequestRecord>
   ) {}
 
-  async findWallet(clientId: string, target: { user_id: string } | { id: string }, manager?: EntityManager): Promise<Wallet | null> {
+  async findWallet(clientId: string, target: { user_id: string } | { id: string }, manager?: EntityManager, lock = true): Promise<Wallet | null> {
     const where = { ...target, client_id: clientId}
 
     if (manager) return manager.findOne(Wallet, {
       where,
-      lock : { mode: 'pessimistic_write' }
+      lock : lock ? { mode: 'pessimistic_write' } : undefined
     })
 
     return this.wallets.findOneBy(where);
@@ -85,13 +85,15 @@ export class PointRepository {
     id    : string, wallet_id: string, type  : Transaction['type'],
     amount: string, balance  : string, ref_id: string, manager: EntityManager,
     point : string | null, point_balance: string | null,
-    original_id: string | null = null
+    original_id: string | null = null,
+    settlement?: { seller_id: string; settle_amount: string; reward_point: string }
   ) {
     return manager.insert(Transaction, {
       id    , wallet_id, type, 
       amount, balance  , ref_id,
       point , point_balance,
-      original_id
+      original_id,
+      ...settlement
     })
   }
 

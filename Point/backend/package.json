@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "nest build",
+    "schema:init": "node dist/database/schema-init.js",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",

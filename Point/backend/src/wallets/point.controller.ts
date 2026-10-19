@@ -57,7 +57,7 @@ export class PointController {
     @Body() body   : PointChangeDto,
     @Req()  request: ClientRequest
   ) {
-    return this.pointService.editPoints(request.clientId, request.reqKey, body.user_id, 'SPEND', body.amount, body.ref_id, body.point)
+    return this.pointService.editPoints(request.clientId, request.reqKey, body.user_id, 'SPEND', body.amount, body.ref_id, body.point, body.seller_id)
   }
 
   @Post('transactions/reverse')
