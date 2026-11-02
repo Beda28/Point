@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ForeignKey, PrimaryColumn } from 'typeorm';
+import { User } from './user.entity.js';
 
 @Entity('products')
 export class Product {
@@ -6,6 +7,7 @@ export class Product {
   pid: string;
 
   @Column({ type: 'char', length: 36 })
+  @ForeignKey(() => User, 'uuid')
   uid: string;
 
   @Column({ type: 'varchar', length: 255 })

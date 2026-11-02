@@ -12,4 +12,7 @@ export class PointChangeDto {
 
     @IsString() @Length(1, 128)
     ref_id : string;
+
+    @IsOptional() @IsString() @Length(1, 128)
+    seller_id?: string;
 }

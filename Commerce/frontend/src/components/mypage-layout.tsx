@@ -23,6 +23,7 @@ const MyPageLayout = () => {
         <NavLink to="/mypage" end>내 정보</NavLink>
         <NavLink to="/mypage/products">내가 등록한 상품</NavLink>
         <NavLink to="/mypage/payments">결제 내역</NavLink>
+        <NavLink to="/mypage/sales">판매 · 정산 내역</NavLink>
       </nav>
       <Outlet />
     </AccountLayout>

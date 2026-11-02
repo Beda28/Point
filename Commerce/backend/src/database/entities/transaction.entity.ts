@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ForeignKey, PrimaryColumn } from 'typeorm';
+import { Product } from './product.entity.js';
+import { User }    from './user.entity.js';
 
 @Entity('transactions')
 export class Transaction {
@@ -6,10 +8,15 @@ export class Transaction {
   tid: string;
 
   @Column({ type: 'char', length: 36 })
+  @ForeignKey(() => Product, 'pid')
   pid: string;
 
   @Column({ type: 'char', length: 36 })
+  @ForeignKey(() => User, 'uuid')
   uid: string;
+
+  @Column({ type: 'char', length: 36 })
+  seller_id: string;
 
   @Column({ type: 'int' })
   quantity: number;
@@ -26,14 +33,26 @@ export class Transaction {
   @Column({ type: 'bigint' })
   amount: string;
 
-  @Column({ type: 'enum', enum: ['PENDING', 'COMPLETED', 'CANCELED', 'FAILED'], default: 'PENDING' })
-  status: 'PENDING' | 'COMPLETED' | 'CANCELED' | 'FAILED';
+  @Column({ type: 'bigint' })
+  fee: string;
+
+  @Column({ type: 'bigint' })
+  seller_amount: string;
+
+  @Column({ type: 'bigint' })
+  point_earned: string;
+
+  @Column({ type: 'enum', enum: ['PENDING', 'PAYING', 'COMPLETED', 'REFUNDING', 'CANCELED', 'FAILED', 'CONFIRMING', 'CONFIRMED'], default: 'PENDING' })
+  status: 'PENDING' | 'PAYING' | 'COMPLETED' | 'REFUNDING' | 'CANCELED' | 'FAILED' | 'CONFIRMING' | 'CONFIRMED';
 
   @Column({ type: 'char', length: 36, nullable: true })
   point_tid: string | null;
 
   @Column({ type: 'char', length: 36, nullable: true })
   point_refund_tid: string | null;
+
+  @Column({ type: 'char', length: 36, nullable: true })
+  point_settle_tid: string | null;
 
   @CreateDateColumn({ type: 'datetime', precision: 6 })
   created_at: Date;
